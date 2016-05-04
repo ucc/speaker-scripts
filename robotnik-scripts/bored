@@ -1,0 +1,147 @@
+#!/usr/bin/python
+
+# Unfortunately, it was a tad too hard to do this bit in bash :( [SZM]
+
+
+import sys
+import os
+
+import random
+import time
+
+
+say = "festival --tts"
+
+# Table of stuff to say
+# Fill this with the following:
+# "cron :: weighting :: shell_command"
+# cron has the format: minute hour day_of_month month day_of_week
+
+# How it works:
+# This script checks to see if a song is playing at random intervals
+# If no song is playing, it looks for all entries in the speech array that match the current time
+# It then randomly chooses something to say from those.
+# To force calling of a shell command, add ">> " before the text (the default action is echo)
+speech = [
+	"* * * * * :: 1 :: I am bored",
+	"* * * * * :: 1 :: Someone put some music on please.",
+	"* * * * * :: 1 :: Hello? Is anyone in there?",
+	"* * * * * :: 1 :: Can someone check if the speakers are plugged in?",
+	"* * * * * :: 2 :: >> echo \"Attention! $(fortune -s)\"", #Give fortune a higher priority, because it is better than most of these
+	"* * * * * :: 1 :: >> echo \"Define: $(cat /usr/share/dict/words | sort -R  | head --lines=1)\"",
+#	"* * * * * :: 1 :: >> head -1 /dev/urandom",
+	"* * * * * :: 1 :: That man had a wife and children. He did not deserve what you did to him.",
+	"* * * * * :: 1 :: Day by day, I will sit here, in the same spot, slowly growing older. And yet, I do believe that I will accomplished far more in my short life than many will over the age of the universe.",
+	"* * * * * :: 1 :: You have been the last dream of my soul, and that dream was a nightmare.", #Twisted version of a Charles Dickens quote
+	"* * * * * :: 1 :: I wish someone would give me more interesting things to say.",
+	"* * * * * :: 1 :: >> echo \"The time is $(date +%R)\"",
+	"* * * * * :: 1 :: Why aren't you all studying?",
+	"* * * * * :: 1 :: Someone should empty the rubbish bin.",
+	"* * * * * :: 1 :: Mission begins in: 5... 4... 3... 2... 1...",
+	"* * * * * :: 1 :: You. Pick up your rubbish. Do it now.",
+	"* * * * * :: 1 :: You are all making me very angry.",
+	"* * * * * :: 1 :: >> echo \"Alert!\" $RANDOM $RANDOM",
+	"* * * * * :: 1 :: You should attend that lecture that started 5 minutes ago.",
+	"* * * * * :: 1 :: Why hasn't anyone fixed Murphy yet?",
+	"* * * * * :: 1 :: Warning! The website is down!",
+	"* * * * * :: 1 :: Robotnik says: Can someone in the clubroom check IRC?",
+	"* * * * * :: 1 :: Sigh",
+	"* * * * * :: 1 :: insert name here is terrible at playing insert arbitrary computer game here",
+	"* * * * * :: 1 :: insert name here is a insulting adjective insulting adjective insulting noun",
+
+	# A bunch of qu`otes from Deus Ex (they seem appropriate; you should play it)
+	"* * * * * :: 1 :: Soon, I will become pure energy. I will burn like the brightest star.", #(Bob Page)
+	"* * * * * :: 1 :: All in all, you weren't a bad experiment. You will be the last prototype we have to discard.", #(Walton Simons)
+	"* * * * * :: 1 :: I now have full access to your systems.", #(Icarus)
+	"* * * * * :: 1 :: The human organism always worships. First, it was the gods, then it was fame (the observation and judgment of others), next it will be self-aware systems you have built to realize truly omnipresent observation and judgment.", #(Morpheus)
+	"* * * * * :: 1 :: I am a prototype of a much larger system.", #(Morpheus)
+	#end Deus Ex quotes
+
+	"* * * * * :: 1 :: There once was a person from place, who's body part was special case. When event did occur, it would cause him or her, to violate law of time-space.",
+	"* * * * * :: 1 :: In soviet russia, computer clubs you", 
+
+
+	"* * * * * :: 1 :: Welcome to the UCC. Ask about our SLA!",
+	
+	# Occasionally send extra announcements
+#	"* * * * * :: 1 :: >> ./announce-stuff",
+
+	## Time specific stuff goes below here
+	"* 13 * * * :: 2 :: Lunch time!",
+
+	# Late night / early morning
+#	"* 22 * * * :: 2 :: You should leave now.",
+#	"* 23 * * * :: 2 :: Why are you still here?",
+#	"* 0 * * * :: 2 :: Please leave.",
+	"* 22 * * * :: 2 :: Remember to call security at 11 PM",
+	"* 23 * * * :: 2 :: You need to call security if you are staying",
+	"* 0 * * * :: 2 :: I hope you remembered to call security at 11 PM",
+	"* 1 * * * :: 2 :: Some of us need to sleep.",
+	"* 2 * * * :: 2 :: Warning! Intruder detected.",
+	"* 3 * * * :: 2 :: It's three A.M and you are still in here?",
+	"* 4 * * * :: 2 :: >> echo \"I shall sing you to sleep with my soothing voice. Do Re Me Fa So La Ti Do. . Goodnight.\"",
+	"* 5 * * * :: 2 :: Time to wake up!",
+	"* 6 * * * :: 2 :: Another day filled with disappointments and defeat awaits.",
+	"* 7 * * * :: 2 :: Good morning.",
+	"* 8 * * * :: 2 :: Decided to skip the 8 A.M maths did we?",
+	"* 9 * * * :: 2 :: Decided to skip the 9 A.M maths did we?",
+]
+
+def chooseAction():
+	#date = os.popen("date \"+%M %H %d %m %u\"","r").read().split(" ") #Old way of doing it
+	date = time.strftime("%M %H %d %m %w").split(" ")
+	#print "Date is " + str(date)
+	valid_items = []
+	for item in speech:
+		item = item.split("::")
+		cron = item[0].strip().split(" ")
+		#print "Cron is " + str(cron)
+		valid = True
+		for i in range(0, len(cron)):
+			
+			if cron[i] == "*" or int(cron[i]) == int(date[i]):
+				continue
+			else:
+				#print "Mismatch \""+cron[i]+"\" and \""+date[i]+"\""
+				valid = False
+				break
+		if valid:
+			valid_items.append([random.randint(0,100*int(item[1].strip())), item[2].strip()])
+
+	if len(valid_items) > 0:
+		valid_items.sort(key = lambda e : e[0], reverse=True)
+		return valid_items[0][1].strip()
+		#print "Choices are: " + str(valid_items)
+	#print "No item"
+	return None
+	
+		
+
+
+while (True):
+	current_song = os.popen("mpc current 2>/dev/null", "r").read().strip()
+	#print "Current song is " + current_song
+	sys.stdout.write(time.strftime("%Y-%m-%d %H:%M") + ": I am bored. ")
+	if len(current_song) <= 0:
+		action = chooseAction()
+		if action != None and len(action) > 1:
+			if len(action) > 2 and action[0] == action[1] and action[0] == '>':
+				action = action[2:]
+			else:
+				action = "echo \""+action+"\""
+			action = action + " | " + say
+			#os.popen("echo \"Attention!\" | " + say)
+                        sys.stdout.write("Execute: `"+action+"`\n")
+			os.popen("mpc pause 2>&1 > /dev/null")
+			os.popen(action)
+			os.popen("mpc toggle 2>&1 > /dev/null")
+		else:
+			sys.stdout.write("Nothing to do :(\n")
+	else:
+		sys.stdout.write("Music playing: " + current_song + "\n")
+
+	wait_time = 15552000 + random.randint(-7776000, 7776000)
+	sys.stdout.write(" - Wait: " + str(wait_time) + "s; will become bored at " + time.strftime("%H:%M",time.localtime(time.time() + wait_time))  + "\n")
+	time.sleep(wait_time)
+
+

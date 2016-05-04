@@ -1,0 +1,16 @@
+Presumably you are reading this because someone killed all the scripts.
+
+1. screen
+2. Start irssi in a screen window
+   - Connect to mussel
+   - Join #ucc
+   - Make sure autolog is on, and the directory is ~/irc-feed
+3. Run `cd ~/irc-feed; irc-feed \#ucc.log "clubroom\|robotnik"` in a screen window
+
+4. Start `./bored` in a screen window
+
+6. Edit crontab with `crontab -u clubroom -e`
+   - Add an entry for `cd ~; ./announce-stuff` to the crontab (run it once per day, say at 12:00pm)
+   - Add an entry for `cd ~; ./westerbong` to the crontab to run *:59
+
+7. Profit

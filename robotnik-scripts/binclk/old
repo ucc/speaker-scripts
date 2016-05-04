@@ -1,0 +1,22 @@
+#!/bin/bash
+
+music="$(mpc current)"
+
+if [ "$music" != "" ]; then
+	exit 0;
+fi
+
+cmd="mplayer"
+
+hour=$(($(date +%k)))
+
+for i in 4 3 2 1 0; do
+	pow=2**$i
+	bit=$(($hour/$pow))
+	if [ $bit != 0 ]; then
+		hour=$(($hour - $pow))
+		$cmd bin1.wav
+	else
+		$cmd bin0.wav
+	fi
+done

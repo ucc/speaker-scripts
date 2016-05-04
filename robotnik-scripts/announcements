@@ -1,0 +1,21 @@
+# This file contains daily announcements
+# A cronjob will play them over robotnik's speakers every day (see the crontab for the specifics)
+# Naturally, commented lines are ignored
+# If you actually use proper grammar, (ie: remember the full stops), it will sound better.
+# [SZM]
+# You can include shell commands in here, if you want to be a hacky bastard, by starting the line with ">> "
+
+
+#>> fortune -s #Yes, the *sole* reason I included that feature is so I could do this :P
+
+#Cameron Hall Quiz Night is on Thursday, the 3rd of May. Tickets are available from the UCC, UniSFA or Unigames. Prices are as follows: members $10 per ticket or $70 per table (8 tickets), non-members $15 per ticket.
+
+#Committee meetings occur on Tuesdays at 4:00pm.
+
+#The UCC Events page is at http://www.ucc.asn.au/infobase/events. This script is not a substitute for actually checking the page.
+
+#Complaints about this A.I should be sent to the Australian Electoral Commision, who will get back to you shortly.
+
+#Do not ask about our S.L.A. We do not have one.
+
+Empty the bin. Please.

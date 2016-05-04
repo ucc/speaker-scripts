@@ -1,0 +1,31 @@
+#!/bin/bash
+
+music="$(mpc current)"
+
+if [ "$music" != "" ]; then
+	exit 0;
+fi
+
+cmd="mplayer"
+
+function speak()
+{
+	echo $@ | festival --tts
+}
+
+hour=$(( $(date +%l) - 1 ))
+
+#speak "At the tone, the time will be $(date +%l) oh clock"
+# People don't like festival :(
+$cmd westminstermain.wav
+
+for i in $(seq $hour); do
+	$cmd westminsterbong.wav
+done
+
+$cmd westminsterfinal.wav
+
+
+
+
+

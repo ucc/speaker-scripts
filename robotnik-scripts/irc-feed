@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# Script to make robotnik say stuff from IRC into the clubroom
+# Blame [SZM]
+
+file=$1 # The path to the log file
+pattern=$2 # A regular expression of lines to match
+be_nice=false
+
+wait=3
+last_modified=""
+say="festival --tts"
+irc_speak="./irc-speak"
+
+
+if test -z "$file" 
+then
+	echo "No file provided"
+	exit 1
+fi
+old_file="$(dirname $file)/.$(basename $file).old"
+
+if ! [ -e $file ]; then (echo "File $file does not exist!") 1>&2; exit 1; fi
+head --lines=-1 $file > $old_file
+if ! [ -e $old_file ]; then (echo "File $old_file wasn't created succesfully!") 1>&2; exit 1; fi
+
+while [ true ]; do
+	clear
+#	echo -n "Checking for exciting irc updates... "
+	if ! [ -e $file ]; then (echo "File $file disappeared!") 1>&2; exit 1; fi
+	if ! [ -e $old_file ]; then (echo "File $old_file disappeared!") 1>&2; exit 1; fi
+	date +"%H:%M:%S"
+	music="$(mpc current)"
+	if ! test -z "$(mpc current)"
+	then
+		
+		if $be_nice; then
+			echo "Playing song $music - Do not interrupt"
+			rm -f $old_file
+			cp $file $old_file
+			sleep $wait >> /dev/null
+			continue
+		fi
+	fi
+
+	modified=$(stat $file | awk '/Change/ {$1=""; print $0}')
+	if [ "$modified" != "$last_modified" ]
+	then
+	statements="$(diff $file $old_file | grep "<" | sed 's/<[[:space:]]//' | grep "$pattern" | $irc_speak)"
+	# Shorten the file
+	#		tail --lines=100 $file > $old_file
+	#		cp $old_file $file
+	#		echo "Statements are: $statements"
+		if ! test -z "$statements"
+		then
+                        mpc pause 2>&1 >> /dev/null #Stop the music
+#			echo -n >> /dev/dsp #Check we can access the speaker 
+#			if [ $? -ne 0 ]
+			if true
+			then
+	        	        rm -f $old_file
+		               	cp $file $old_file
+				echo "$statements"
+				echo "$statements" | $say
+			else
+				echo "Couldn't access speaker!"
+			fi	
+			mpc toggle 2>&1 >> /dev/null #Resume music
+		else
+			echo "No one has said anything in the last $wait seconds"
+		fi
+	fi
+	last_modified="$modified"
+	
+	sleep $wait >> /dev/null
+done
+

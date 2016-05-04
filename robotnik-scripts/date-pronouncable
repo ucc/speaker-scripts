@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Gets a pronouncable version of the date and time
+
+#Make full date, includes the "st" or "th" or whatever that's supposed to be called.
+fulldate=$(date --date=$thedate +"%A, the %dth %B %Y") 
+
+moddate=$(( $(date --date=$thedate +%d) % 10 ))
+
+if [ $moddate = 1 ] 
+then 
+	fulldate=$(date --date=$thedate +"%A, the %dst %B %Y")
+fi
+
+if [ $moddate = 2 ] 
+then 
+	fulldate=$(date --date=$thedate +"%A, the %dnd %B %Y") 
+fi
+
+if [ $moddate = 3 ] 
+then 
+	fulldate=$(date --date=$thedate +"%A, the %drd %B %Y") 
+fi
+
+echo "$fulldate"

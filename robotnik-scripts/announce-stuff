@@ -1,0 +1,31 @@
+#!/bin/bash
+
+exit 0
+
+file="announcements"
+say="festival --tts"
+
+thedate="$(./date-pronouncable)"
+
+announcements=$(grep -v "^#" "$file")
+
+mpc pause 2>&1 >> /dev/null #Stop music
+
+echo -n >> /dev/dsp #Check we can access the speaker
+while [ $? -ne 0 ]; do
+	echo -n >> /dev/dsp #Wait until we can access the speaker
+done
+
+if test -z "$announcements"
+then
+	echo "There are no announcements for $thedate" | $say
+else
+	announcements=$(echo "$announcements" | awk '{if ($1 == ">>") {$1=""; system($0)} else print $0;}')
+	echo "Attention! Announcements for $thedate" | $say
+	echo "$announcements" | $say
+	echo "That will be all." | $say
+fi
+#echo "Done announcements for $thedate" >> "announcements.log"
+mpc toggle 2>&1 >> /dev/null #Resume music
+
+
