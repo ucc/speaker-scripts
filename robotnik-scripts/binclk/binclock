@@ -6,7 +6,7 @@ if [ "$music" != "" ]; then
 	exit 0;
 fi
 
-cmd="mplayer"
+cmd="mplayer -volume=17"
 
 hour=$(($(date +%k)))
 
