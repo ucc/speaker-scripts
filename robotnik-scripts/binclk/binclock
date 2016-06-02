@@ -3,10 +3,13 @@
 music="$(mpc current)"
 
 if [ "$music" != "" ]; then
-	exit 0;
+	if ! mpc | grep '\[paused\]'; then
+		exit 0;
+	fi
 fi
 
-cmd="mplayer"
+cmd="mplayer -volume 15" 
+#Really quiet so it stops turning off speakers but does not annoy anyone
 
 hour=$(($(date +%k)))
 
