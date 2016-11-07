@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 music="$(mpc current)"
 
@@ -8,8 +9,9 @@ if [ "$music" != "" ]; then
 	fi
 fi
 
-cmd="mplayer -volume 15" 
+#cmd="mplayer -volume 15" 
 #Really quiet so it stops turning off speakers but does not annoy anyone
+
 
 hour=$(($(date +%k)))
 
@@ -18,10 +20,10 @@ for i in 4 3 2 1 0; do
 	bit=$(($hour/$pow))
 	if [ $bit != 0 ]; then
 		hour=$(($hour - $pow))
-		cmd="$cmd bin1.wav"
+#		cmd="$cmd bin1.wav"
+		espeak -ven+f3 "Clinton"
 	else
-		cmd="$cmd bin0.wav"
+#		cmd="$cmd bin0.wav"
+		espeak -ven "Trump"
 	fi
 done
-
-$cmd
