@@ -1,17 +1,21 @@
 #!/bin/bash
 set -x
 
+bin1="/mp3s/annoying_sounds/AOE2_Taunts/01 Yes.mp3"
+bin0="/mp3s/annoying_sounds/AOE2_Taunts/02 No.mp3"
+
 music="$(mpc current)"
 
+#if music is currently playing
 if [ "$music" != "" ]; then
+	#if not puased
 	if ! mpc | grep '\[paused\]'; then
 		exit 0;
 	fi
 fi
 
-#cmd="mplayer -volume 15" 
+cmd="mplayer" 
 #Really quiet so it stops turning off speakers but does not annoy anyone
-
 
 hour=$(($(date +%k)))
 
@@ -20,10 +24,10 @@ for i in 4 3 2 1 0; do
 	bit=$(($hour/$pow))
 	if [ $bit != 0 ]; then
 		hour=$(($hour - $pow))
-#		cmd="$cmd bin1.wav"
-		espeak -ven+f3 "Clinton"
+		cmd="$cmd \"$bin1\""
 	else
-#		cmd="$cmd bin0.wav"
-		espeak -ven "Trump"
+		cmd="$cmd \"$bin0\""
 	fi
 done
+
+eval $cmd
